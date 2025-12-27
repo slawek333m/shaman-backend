@@ -24,23 +24,16 @@ def get_srt():
         "-o", temp_name
     ]
 
-    # 1️⃣ Próba auto-napisów
     cmd_auto = base_cmd + ["--write-auto-subs"]
-
-    # 2️⃣ Próba ręcznych napisów
     cmd_manual = base_cmd + ["--write-subs"]
 
-    # LOG
-    print("▶️ START: Pobieranie napisów dla:", video_id)
+    print(f"\n🎬 START: {video_id}")
+    print("▶️ Próbuję auto-napisy:", " ".join(cmd_auto))
 
-    # AUTO
     try:
-        print("▶️ Próbuję auto-napisy:", " ".join(cmd_auto))
         subprocess.run(cmd_auto, check=True, capture_output=True)
     except subprocess.CalledProcessError as e1:
         print("⚠️ Auto-napisy nie znalezione, próbuję ręczne:", " ".join(cmd_manual))
-
-        # MANUAL
         try:
             subprocess.run(cmd_manual, check=True, capture_output=True)
         except subprocess.CalledProcessError as e2:
@@ -50,7 +43,6 @@ def get_srt():
                 "details": e2.stderr.decode()
             }), 500
 
-    # Sprawdzenie czy plik powstał
     if not os.path.exists(output_file):
         print("❌ Nie znaleziono pliku SRT:", output_file)
         return jsonify({"error": "nie znaleziono napisów"}), 404
@@ -58,9 +50,5 @@ def get_srt():
     print("✅ Sukces! Wysyłam plik:", output_file)
     return send_file(output_file, as_attachment=True)
 
-
-# ===============================
-#  URUCHOMIENIE NA RENDERZE
-# ===============================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
